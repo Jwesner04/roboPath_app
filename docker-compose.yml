@@ -1,0 +1,20 @@
+# -------------------------------------------------------------------------- #
+# The below code is a test yml used to build a base image for                #
+# c++ development environment.                                               #
+#                                                                            #
+# © 2022 Jonathan Wesner                                                     #
+#                                                                            #
+# command: docker-compose up --detach                                        #
+# -------------------------------------------------------------------------- #
+version: "3.9"
+
+services:
+  devApp:
+    image: devcpp:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    command: bash -c "tail -f /dev/null"
+    volumes:
+      - .:/app

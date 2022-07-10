@@ -1,3 +1,10 @@
+# -------------------------------------------------------------------------- #
+# The below gitignore is used to ignore general files in a python app env    #
+#                                                                            #
+# © 2022 Jonathan Wesner                                                     #
+#                                                                            #
+# -------------------------------------------------------------------------- #
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
