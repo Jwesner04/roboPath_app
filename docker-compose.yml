@@ -10,10 +10,13 @@ version: "3.9"
 
 services:
   devApp:
-    image: devcpp:latest
+    image: robopathapp:latest
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=development
 
     command: bash -c "tail -f /dev/null"
     volumes:

@@ -24,7 +24,6 @@ class RoboPath:
     # -------------------------------------------------------------------------- #
     # Constructor
     # -------------------------------------------------------------------------- #
-
     def __init__(self, m, n, robotSize):
         """ Constructor of BestPath
 
@@ -73,16 +72,21 @@ class RoboPath:
 
         for obstacle in obstacleList:
             coordStartLocal = []
-            xLocal = obstacle[ct.X] - obstacle[ct.RADIUS]
-            yLocal = obstacle[ct.Y] - obstacle[ct.RADIUS]
-            coordStartLocal.append(xLocal)
-            coordStartLocal.append(yLocal)
+            # flip row to make a true (x,y) coordinate system. If (0,0),
+            # translate to (0, m)
+            rowLocal = (self.mEnd_ - obstacle[ct.Y] - 1) - obstacle[ct.RADIUS]
+            columnLocal = obstacle[ct.X] - obstacle[ct.RADIUS]
+            coordStartLocal.append(rowLocal)
+            coordStartLocal.append(columnLocal)
 
             coordEndLocal = []
-            xLocal = obstacle[ct.X] + obstacle[ct.RADIUS]
-            yLocal = obstacle[ct.Y] + obstacle[ct.RADIUS]
-            coordEndLocal.append(xLocal)
-            coordEndLocal.append(yLocal)
+            # flip row to make a true (x,y) coordinate system. If (0,0),
+            # translate to (0, m)
+            rowLocal = (self.mEnd_ - obstacle[ct.Y] - 1) + obstacle[ct.RADIUS]
+            columnLocal = obstacle[ct.X] + obstacle[ct.RADIUS]
+
+            coordEndLocal.append(rowLocal)
+            coordEndLocal.append(columnLocal)
 
             # Update the matrixMap_ with the obstacle
             self.updateMatrixMap(coordStartLocal, coordEndLocal, ct.OCCUPIED)
@@ -105,16 +109,16 @@ class RoboPath:
         """
 
         # create this obstacles matrix
-        xLocal = coordStart[ct.X]
-        yLocal = coordStart[ct.Y]
-        while (xLocal <= coordEnd[ct.X]):
-            while (yLocal <= coordEnd[ct.Y]):
-                if (xLocal >= self.mStart_ and xLocal < self.mEnd_ and
-                        yLocal >= self.nStart_ and yLocal < self.nEnd_):
-                    self.matrixMap_[xLocal][yLocal] = updateVal
-                yLocal += 1
-            yLocal = coordStart[ct.Y]
-            xLocal += 1
+        rowLocal = coordStart[ct.M]
+        columnLocal = coordStart[ct.N]
+        while (rowLocal <= coordEnd[ct.M]):
+            while (columnLocal <= coordEnd[ct.N]):
+                if (columnLocal >= self.mStart_ and columnLocal < self.mEnd_ and
+                        rowLocal >= self.nStart_ and rowLocal < self.nEnd_):
+                    self.matrixMap_[rowLocal][columnLocal] = updateVal
+                columnLocal += 1
+            columnLocal = coordStart[ct.N]
+            rowLocal += 1
 
     # -------------------------------------------------------------------------- #
     # bestSafePath()
@@ -141,8 +145,26 @@ class RoboPath:
         # to be processed. First one to reach the end is
         # assumed to be the best path
         queue = deque()
-        firstPoint = [[startLoc[ct.X], startLoc[ct.Y]]]
+
+        # flip row to make a true (x,y) coordinate system. If (0,0),
+        # translate to (0, m)
+        rowStartLocal = self.mEnd_ - startLoc[ct.Y] - 1
+        # Bad end coordinate to start location
+        if (rowStartLocal >= self.mEnd_):
+            return False
+
+        columnStartLocal = startLoc[ct.X]
+        firstPoint = [[rowStartLocal, columnStartLocal]]
         queue.append(firstPoint)
+
+        # flip row to make a true (x,y) coordinate system. If (0,0),
+        # translate to (0, m)
+        rowEndLocal = self.mEnd_ - (endLoc[ct.Y] + 1)
+        # Bad start coordinate to start location
+        if (rowEndLocal < self.mStart_):
+            return False
+
+        columnEndLocal = endLoc[ct.X]
 
         while (len(queue)):
             size = len(queue)
@@ -158,7 +180,7 @@ class RoboPath:
 
                 # check if end location has been reached. If it is reached
                 # append the history and return true to indicate a successful path
-                if (point[ct.X] is endLoc[ct.X] and point[ct.Y] is endLoc[ct.Y]):
+                if (point[ct.M] is rowEndLocal and point[ct.N] is columnEndLocal):
                     self.robotPath_ = pointHistory
                     self.markRobotPathOnMap()
                     return True
@@ -166,19 +188,19 @@ class RoboPath:
                 for d in ct.ROBOT_DIRECTIONS:
                     # Add the direction the robot is attempting to go to the current position
                     # of the robot
-                    xLocal = point[ct.X] + d[ct.X]
-                    yLocal = point[ct.Y] + d[ct.Y]
+                    rowLocal = point[ct.M] + d[ct.M]
+                    columnLocal = point[ct.N] + d[ct.N]
 
                     # Verify the move the robot is attempting is valid
-                    if (self.moveIsValid(xLocal, yLocal) and matrixMapLocal[xLocal][yLocal] == 1):
+                    if (self.moveIsValid(rowLocal, columnLocal) and matrixMapLocal[rowLocal][columnLocal] == 1):
                         pointHistoryLocal = pointHistory.copy()
                         # append this direction to the history
-                        pointHistoryLocal.append([xLocal, yLocal])
+                        pointHistoryLocal.append([rowLocal, columnLocal])
 
                         # append this history to the queue
                         queue.append(pointHistoryLocal)
                         # mark this position as visited
-                        matrixMapLocal[xLocal][yLocal] = ct.OCCUPIED
+                        matrixMapLocal[rowLocal][columnLocal] = ct.OCCUPIED
         return False
 
     # -------------------------------------------------------------------------- #
@@ -197,12 +219,12 @@ class RoboPath:
         """
 
         for coord in self.robotPath_:
-            self.matrixMap_[coord[ct.X]][coord[ct.Y]] = ct.ROBOT_ROUTE
+            self.matrixMap_[coord[ct.M]][coord[ct.N]] = ct.ROBOT_ROUTE
 
     # -------------------------------------------------------------------------- #
     # moveIsValid()
     # -------------------------------------------------------------------------- #
-    def moveIsValid(self, x, y):
+    def moveIsValid(self, m, n):
         """ moveIsValid() method of BestPath class
 
             Summary: checks if the robot can make the attempted move. This includes
@@ -222,27 +244,27 @@ class RoboPath:
 
         """
 
-        xStartLocal = x - self.robotSize_
-        yStartLocal = y - self.robotSize_
+        rowStartLocal = m - self.robotSize_
+        columnStartLocal = n - self.robotSize_
 
-        xEndLocal = x + self.robotSize_
-        yEndLocal = y + self.robotSize_
+        rowEndLocal = m + self.robotSize_
+        columnEndLocal = n + self.robotSize_
 
         # create this obstacles matrix
-        yCountLocal = yStartLocal
-        xCountLocal = xStartLocal
-        while (xCountLocal <= xEndLocal):
-            while (yCountLocal <= yEndLocal):
+        rowCountLocal = rowStartLocal
+        columnCountLocal = columnStartLocal
+        while (rowCountLocal <= rowEndLocal):
+            while (columnCountLocal <= columnEndLocal):
                 # Checks 5 things:
                 #    - boundary of x position to the left is valid
                 #    - boundary of x position to the right is valid
-                if (xCountLocal < self.mStart_ or xCountLocal >= self.mEnd_ or
-                        yCountLocal < self.nStart_ or yCountLocal >= self.nEnd_ or
-                        self.matrixMap_[xCountLocal][yCountLocal] == 0):
+                if (rowCountLocal < self.mStart_ or rowCountLocal >= self.mEnd_ or
+                        columnCountLocal < self.nStart_ or columnCountLocal >= self.nEnd_ or
+                        self.matrixMap_[rowCountLocal][columnCountLocal] == 0):
                     return False
-                yCountLocal += 1
-            yCountLocal = yStartLocal
-            xCountLocal += 1
+                columnCountLocal += 1
+            columnCountLocal = columnStartLocal
+            rowCountLocal += 1
 
         return True
 
@@ -270,3 +292,16 @@ class RoboPath:
         """
 
         return self.robotPath_
+
+    # -------------------------------------------------------------------------- #
+    # getMatrixMap()
+    # -------------------------------------------------------------------------- #
+    def getMatrixMap(self):
+        """ getMatrixMap() method of BestPath class
+
+            Summary: This method returns the current state of the map.
+
+            Output: MxN matrix of 2d map
+        """
+
+        return self.matrixMap_

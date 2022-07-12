@@ -4,10 +4,14 @@
 # © 2022 Jonathan Wesner                                                     #
 #                                                                            #
 # -------------------------------------------------------------------------- #
-# Coordinate enums, where X=row, Y=column
+# Coordinate System enums, where X=row, Y=column
 X = 0
 Y = 1
 RADIUS = 2
+
+# Row, Column enum
+M = 0
+N = 1
 
 # Possible Coordinate Values
 OCCUPIED = 0

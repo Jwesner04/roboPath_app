@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name='roboLib',
+    name='roboApp',
     packages=find_packages(include=['roboLib']),
     version='0.1.0',
     description='Help the Robot get to its destination',
