@@ -29,7 +29,8 @@ RUN pip install setuptools
 RUN pip install twine
 RUN pip install pytest==4.4.1
 RUN pip install pytest-runner==4.4
-RUN pip install flask
+RUN pip install fastapi
+RUN pip install uvicorn
 
 # install helpers
 RUN apt-get install -y git \ 
@@ -61,9 +62,6 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 
 # install react
 RUN npm -g install create-react-app
-
-# install ganache-cli
-RUN npm install -g ganache-cli
 
 WORKDIR /app/
 

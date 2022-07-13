@@ -56,7 +56,7 @@ class RoboPath:
     # -------------------------------------------------------------------------- #
     # insertObstacles()
     # -------------------------------------------------------------------------- #
-    def insertObstacles(self, obstacleList):
+    def insertObstacles(self, obstacleList) -> str:
         """ insertObstacles() method of BestPath class
 
             Summary: insert obstacles into generated map MxN that updates a postion
@@ -64,32 +64,43 @@ class RoboPath:
                      NOTE: this function will discard obstacles outside the map
                            area
             Inputs:
-                - obstacleList: contains a list of a list, where the sub-list
+                - obstacleList: contains a list of lists, where the sub-list
                                 is always 3 size = [m, n, radius]. Example:
                                 [ [1,2,1], [6,2,1], [4,4,2] ]
 
         """
 
         for obstacle in obstacleList:
-            coordStartLocal = []
-            # flip row to make a true (x,y) coordinate system. If (0,0),
-            # translate to (0, m)
-            rowLocal = (self.mEnd_ - obstacle[ct.Y] - 1) - obstacle[ct.RADIUS]
-            columnLocal = obstacle[ct.X] - obstacle[ct.RADIUS]
-            coordStartLocal.append(rowLocal)
-            coordStartLocal.append(columnLocal)
+            # check the obstacle has a valid set
+            try:
+                coordStartLocal = []
+                # flip row to make a true (x,y) coordinate system. If (0,0),
+                # translate to (0, m)
+                rowLocal = (
+                    self.mEnd_ - obstacle[ct.Y] - 1) - obstacle[ct.RADIUS]
+                columnLocal = obstacle[ct.X] - obstacle[ct.RADIUS]
+                coordStartLocal.append(rowLocal)
+                coordStartLocal.append(columnLocal)
 
-            coordEndLocal = []
-            # flip row to make a true (x,y) coordinate system. If (0,0),
-            # translate to (0, m)
-            rowLocal = (self.mEnd_ - obstacle[ct.Y] - 1) + obstacle[ct.RADIUS]
-            columnLocal = obstacle[ct.X] + obstacle[ct.RADIUS]
+                coordEndLocal = []
+                # flip row to make a true (x,y) coordinate system. If (0,0),
+                # translate to (0, m)
+                rowLocal = (
+                    self.mEnd_ - obstacle[ct.Y] - 1) + obstacle[ct.RADIUS]
+                columnLocal = obstacle[ct.X] + obstacle[ct.RADIUS]
 
-            coordEndLocal.append(rowLocal)
-            coordEndLocal.append(columnLocal)
+                coordEndLocal.append(rowLocal)
+                coordEndLocal.append(columnLocal)
 
-            # Update the matrixMap_ with the obstacle
-            self.updateMatrixMap(coordStartLocal, coordEndLocal, ct.OCCUPIED)
+                # Update the matrixMap_ with the obstacle
+                self.updateMatrixMap(
+                    coordStartLocal, coordEndLocal, ct.OCCUPIED)
+            except:
+                pass
+            finally:
+                return "A bad obstacle input"
+
+        return "Obstacles set"
 
     # -------------------------------------------------------------------------- #
     # updateMatrixMap()
@@ -123,7 +134,7 @@ class RoboPath:
     # -------------------------------------------------------------------------- #
     # bestSafePath()
     # -------------------------------------------------------------------------- #
-    def bestSafePath(self, startLoc, endLoc):
+    def bestSafePath(self, startLoc, endLoc) -> str:
         """ bestSafePath() method of BestPath class
 
             Summary: This method determines the best route for the robot to get
@@ -148,60 +159,67 @@ class RoboPath:
 
         # flip row to make a true (x,y) coordinate system. If (0,0),
         # translate to (0, m)
-        rowStartLocal = self.mEnd_ - startLoc[ct.Y] - 1
-        # Bad end coordinate to start location
-        if (rowStartLocal >= self.mEnd_):
-            return False
+        try:
+            rowStartLocal = self.mEnd_ - startLoc[ct.Y] - 1
+            # Bad end coordinate to start location
+            if (rowStartLocal >= self.mEnd_):
+                return "Bad end coordinate to m start location"
 
-        columnStartLocal = startLoc[ct.X]
-        firstPoint = [[rowStartLocal, columnStartLocal]]
-        queue.append(firstPoint)
+            columnStartLocal = startLoc[ct.X]
+            firstPoint = [[rowStartLocal, columnStartLocal]]
+            queue.append(firstPoint)
 
-        # flip row to make a true (x,y) coordinate system. If (0,0),
-        # translate to (0, m)
-        rowEndLocal = self.mEnd_ - (endLoc[ct.Y] + 1)
-        # Bad start coordinate to start location
-        if (rowEndLocal < self.mStart_):
-            return False
+            # flip row to make a true (x,y) coordinate system. If (0,0),
+            # translate to (0, m)
+            rowEndLocal = self.mEnd_ - (endLoc[ct.Y] + 1)
+            # Bad start coordinate to start location
+            if (rowEndLocal < self.mStart_):
+                return "Bad start coordinate to m start location"
 
-        columnEndLocal = endLoc[ct.X]
+            columnEndLocal = endLoc[ct.X]
 
-        while (len(queue)):
-            size = len(queue)
-            while (size > 0):
-                size -= 1
-                # Tracking history is important for
-                # identifying the path of the robot
-                pointHistory = queue.popleft()
+            while (len(queue)):
+                size = len(queue)
+                while (size > 0):
+                    size -= 1
+                    # Tracking history is important for
+                    # identifying the path of the robot
+                    pointHistory = queue.popleft()
 
-                # use last point from history
-                sizeOfHistory = len(pointHistory)
-                point = pointHistory[sizeOfHistory-1]
+                    # use last point from history
+                    sizeOfHistory = len(pointHistory)
+                    point = pointHistory[sizeOfHistory-1]
 
-                # check if end location has been reached. If it is reached
-                # append the history and return true to indicate a successful path
-                if (point[ct.M] is rowEndLocal and point[ct.N] is columnEndLocal):
-                    self.robotPath_ = pointHistory
-                    self.markRobotPathOnMap()
-                    return True
+                    # check if end location has been reached. If it is reached
+                    # append the history and return true to indicate a successful path
+                    if (point[ct.M] is rowEndLocal and point[ct.N] is columnEndLocal):
+                        self.robotPath_ = pointHistory
+                        self.markRobotPathOnMap()
+                        return "Robot made it to destination"
 
-                for d in ct.ROBOT_DIRECTIONS:
-                    # Add the direction the robot is attempting to go to the current position
-                    # of the robot
-                    rowLocal = point[ct.M] + d[ct.M]
-                    columnLocal = point[ct.N] + d[ct.N]
+                    for d in ct.ROBOT_DIRECTIONS:
+                        # Add the direction the robot is attempting to go to the current position
+                        # of the robot
+                        rowLocal = point[ct.M] + d[ct.M]
+                        columnLocal = point[ct.N] + d[ct.N]
 
-                    # Verify the move the robot is attempting is valid
-                    if (self.moveIsValid(rowLocal, columnLocal) and matrixMapLocal[rowLocal][columnLocal] == 1):
-                        pointHistoryLocal = pointHistory.copy()
-                        # append this direction to the history
-                        pointHistoryLocal.append([rowLocal, columnLocal])
+                        # Verify the move the robot is attempting is valid
+                        if (self.moveIsValid(rowLocal, columnLocal) and matrixMapLocal[rowLocal][columnLocal] == 1):
+                            pointHistoryLocal = pointHistory.copy()
+                            # append this direction to the history
+                            pointHistoryLocal.append([rowLocal, columnLocal])
 
-                        # append this history to the queue
-                        queue.append(pointHistoryLocal)
-                        # mark this position as visited
-                        matrixMapLocal[rowLocal][columnLocal] = ct.OCCUPIED
-        return False
+                            # append this history to the queue
+                            queue.append(pointHistoryLocal)
+                            # mark this position as visited
+                            matrixMapLocal[rowLocal][columnLocal] = ct.OCCUPIED
+            return "Robot unable to reach destination"
+        except:
+            # pass the exception for the UI to handle and assume a bad input
+            # was placed by the user
+            pass
+        finally:
+            return "bad start or end location"
 
     # -------------------------------------------------------------------------- #
     # markRobotPathOnMap()

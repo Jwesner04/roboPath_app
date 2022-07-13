@@ -17,6 +17,8 @@ function printHelp {
     echo " $SCRIPTERNAME::Help"
     echo "--------------------------------------------------"
     echo "   1) -h|--help    : prints help menu             "
+    echo "   2) -u|--update  : uses npm to update react pkgs"
+    echo "   3) -t|--test    : tests the backend library    "
     echo
 }
 
@@ -24,8 +26,9 @@ function printHelp {
 #                             MAIN                              #
 #################################################################
 SCRIPTERNAME=`basename $0`
-BASE_DIR=/workspace
-ENV_DIR=/workspace/venv
+BASE_DIR=`pwd`
+ENV_DIR=$BASE_DIR/venv
+BASE_FRONTEND_DIR=$BASE_DIR/frontend
 
 cd $BASE_DIR
 if [ -d $ENV_DIR ]
@@ -40,6 +43,12 @@ do
     in
     -h|--help)
         printHelp
+        exit
+        ;;
+    -u|--update)
+        cd $BASE_FRONTEND_DIR
+        npm update
+        cd $BASE_DIR
         exit
         ;;
     -t|--test)

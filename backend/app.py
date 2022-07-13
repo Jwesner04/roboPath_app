@@ -8,50 +8,57 @@
 # -------------------------------------------------------------------------- #
 
 # Defining main function
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from roboLib import roboPathClass
-from flask import Flask, jsonify
+import uvicorn
+
+app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    "localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+# Below is for Testing Purposes ONLY
+# with open('data/defaultData.json', 'r') as f:
+#    data = json.load(f)
 
 
-import json
+@app.post("/runSimulator")
+async def getRobotMap(data: dict) -> dict:
+    # Read in default data and setup a object instance to be used for the life of
+    # this app
+    bestPathObj = roboPathClass.RoboPath(
+        data["m"], data["n"], data["robotSize"])
 
+    # insert obstacles
+    obstaclesOutput = await bestPathObj.insertObstacles(data["obstacles"])
 
-roboPathData = {
-    "pathValid": True,
-    "roboPath": [[]]
-}
+    shortestPathOutput = await bestPathObj.bestSafePath(data["startCoord"], data["endCoord"])
 
-
-app = Flask(__name__)
-
-m = 10
-n = 10
-robotSize = 1
-bestPathObj = roboPathClass.RoboPath(m, n, robotSize)
-
-
-@app.route('/getRobotMap', methods=['GET'])
-def getRobotMap():
-
-    # Get best path for robot to take
-    startCoord = [0, 0]
-    endCoord = [8, 8]
-    foundShortestPath = bestPathObj.bestSafePath(startCoord, endCoord)
-
-    # Data to be written
-    roboMapData = {
-        "mapValid": True,
+    return {
+        "obstaclesValid": obstaclesOutput,
+        "mapValid": shortestPathOutput,
         "roboMap": bestPathObj.getMatrixMap()
     }
 
-    # Serializing json
-    roboMapJsonObj = json.dumps(roboMapData, indent=4)
 
-    # Writing to file for reference
-    with open("data/roboMapData.json", "w") as outfile:
-        outfile.write(roboMapJsonObj)
-
-    return jsonify(roboMapData)
+# @app.post("/runSimulator")
+# async def set(data: dict):
+#    data["startCoord"]
+#    return {
+#        "data": {"Todo added."}
+#    }
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    uvicorn.run("app.api:app", host="0.0.0.0", port=8000, reload=True)
