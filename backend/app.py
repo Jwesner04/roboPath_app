@@ -10,15 +10,20 @@
 # Defining main function
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from roboLib import roboPathClass
+from schemas import robotRequestMapSchema
 import uvicorn
 
 app = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "http://localhost:3001",
     "localhost:3000"
+    "localhost:3001",
 ]
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,37 +33,37 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+
+@app.get("/", tags=["root"])
+async def read_root() -> dict:
+    return {"message": "Welcome to your todo list."}
+
 # Below is for Testing Purposes ONLY
 # with open('data/defaultData.json', 'r') as f:
 #    data = json.load(f)
 
 
-@app.post("/runSimulator")
-async def getRobotMap(data: dict) -> dict:
+@app.post("/getRobotMap")
+async def getRobotMap(data: robotRequestMapSchema.RobotRequestMapData) -> dict:
     # Read in default data and setup a object instance to be used for the life of
     # this app
     bestPathObj = roboPathClass.RoboPath(
-        data["m"], data["n"], data["robotSize"])
+        data.m, data.n, data.robotRadius)
 
     # insert obstacles
-    obstaclesOutput = await bestPathObj.insertObstacles(data["obstacles"])
+    obstaclesOutput = bestPathObj.insertObstacles(data.obstacles)
 
-    shortestPathOutput = await bestPathObj.bestSafePath(data["startCoord"], data["endCoord"])
+    shortestPathOutput = bestPathObj.bestSafePath(
+        data.startCoord, data.endCoord)
 
-    return {
+    data = {
         "obstaclesValid": obstaclesOutput,
         "mapValid": shortestPathOutput,
         "roboMap": bestPathObj.getMatrixMap()
     }
 
-
-# @app.post("/runSimulator")
-# async def set(data: dict):
-#    data["startCoord"]
-#    return {
-#        "data": {"Todo added."}
-#    }
+    return data
 
 
 if __name__ == "__main__":
-    uvicorn.run("app.api:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app:app", reload=True)

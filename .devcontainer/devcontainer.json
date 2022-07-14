@@ -30,7 +30,10 @@
 		"hediet.vscode-drawio",
 		"zhuangtongfa.Material-theme",
 		"ms-vscode.cpptools",
-		"ms-python.python"
+		"ms-python.python",
+		"msjsdiag.vscode-react-native",
+		"burkeholland.simple-react-snippets",
+		"dsznajder.es7-react-js-snippets"
 	]
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],

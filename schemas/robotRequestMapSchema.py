@@ -4,25 +4,15 @@
 # © 2022 Jonathan Wesner                                                     #
 #                                                                            #                                                                   #
 #                                                                            #
-# test() app                                                                 #
+# schema used for a HTTP GET REQUEST                                         #
 # -------------------------------------------------------------------------- #
-from roboLib import roboPathClass
+from pydantic import BaseModel
 
 
-def test_roboLib():
-    # initiate a RoboPath object
-    m = 20
-    n = 20
-    robotSize = 1
-    bestPathObj = roboPathClass.RoboPath(m, n, robotSize)
-
-    # Insert some obstacles
-    obstacleList = []
-    validObstacles = bestPathObj.insertObstacles(obstacleList)
-    assert validObstacles == True
-
-    # Get best path for robot to take
-    startCoord = [0, 0]
-    endCoord = [18, 18]
-    endReached = bestPathObj.bestSafePath(startCoord, endCoord)
-    assert endReached == True
+class RobotRequestMapData(BaseModel):
+    m: int
+    n: int
+    robotRadius: int
+    obstacles: list[list[int]]
+    startCoord: list[int]
+    endCoord: list[int]

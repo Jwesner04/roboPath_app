@@ -56,7 +56,7 @@ class RoboPath:
     # -------------------------------------------------------------------------- #
     # insertObstacles()
     # -------------------------------------------------------------------------- #
-    def insertObstacles(self, obstacleList) -> str:
+    def insertObstacles(self, obstacleList) -> bool:
         """ insertObstacles() method of BestPath class
 
             Summary: insert obstacles into generated map MxN that updates a postion
@@ -69,10 +69,12 @@ class RoboPath:
                                 [ [1,2,1], [6,2,1], [4,4,2] ]
 
         """
+        if not len(obstacleList):
+            return True
 
-        for obstacle in obstacleList:
-            # check the obstacle has a valid set
-            try:
+        try:
+            for obstacle in obstacleList:
+                # check the obstacle has a valid set
                 coordStartLocal = []
                 # flip row to make a true (x,y) coordinate system. If (0,0),
                 # translate to (0, m)
@@ -95,12 +97,10 @@ class RoboPath:
                 # Update the matrixMap_ with the obstacle
                 self.updateMatrixMap(
                     coordStartLocal, coordEndLocal, ct.OCCUPIED)
-            except:
-                pass
-            finally:
-                return "A bad obstacle input"
 
-        return "Obstacles set"
+            return True
+        except:
+            return False
 
     # -------------------------------------------------------------------------- #
     # updateMatrixMap()
@@ -134,7 +134,7 @@ class RoboPath:
     # -------------------------------------------------------------------------- #
     # bestSafePath()
     # -------------------------------------------------------------------------- #
-    def bestSafePath(self, startLoc, endLoc) -> str:
+    def bestSafePath(self, startLoc, endLoc) -> bool:
         """ bestSafePath() method of BestPath class
 
             Summary: This method determines the best route for the robot to get
@@ -157,13 +157,13 @@ class RoboPath:
         # assumed to be the best path
         queue = deque()
 
-        # flip row to make a true (x,y) coordinate system. If (0,0),
-        # translate to (0, m)
         try:
+            # flip row to make a true (x,y) coordinate system. If (0,0),
+            # translate to (0, m)
             rowStartLocal = self.mEnd_ - startLoc[ct.Y] - 1
             # Bad end coordinate to start location
             if (rowStartLocal >= self.mEnd_):
-                return "Bad end coordinate to m start location"
+                return False
 
             columnStartLocal = startLoc[ct.X]
             firstPoint = [[rowStartLocal, columnStartLocal]]
@@ -174,7 +174,7 @@ class RoboPath:
             rowEndLocal = self.mEnd_ - (endLoc[ct.Y] + 1)
             # Bad start coordinate to start location
             if (rowEndLocal < self.mStart_):
-                return "Bad start coordinate to m start location"
+                return False
 
             columnEndLocal = endLoc[ct.X]
 
@@ -195,7 +195,7 @@ class RoboPath:
                     if (point[ct.M] is rowEndLocal and point[ct.N] is columnEndLocal):
                         self.robotPath_ = pointHistory
                         self.markRobotPathOnMap()
-                        return "Robot made it to destination"
+                        return True
 
                     for d in ct.ROBOT_DIRECTIONS:
                         # Add the direction the robot is attempting to go to the current position
@@ -213,13 +213,11 @@ class RoboPath:
                             queue.append(pointHistoryLocal)
                             # mark this position as visited
                             matrixMapLocal[rowLocal][columnLocal] = ct.OCCUPIED
-            return "Robot unable to reach destination"
+
+            # Return if robot never made it
+            return False
         except:
-            # pass the exception for the UI to handle and assume a bad input
-            # was placed by the user
-            pass
-        finally:
-            return "bad start or end location"
+            return True
 
     # -------------------------------------------------------------------------- #
     # markRobotPathOnMap()

@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='roboApp',
-    packages=find_packages(include=['roboLib']),
+    packages=find_packages(include=['roboLib', 'schemas']),
     version='0.1.0',
     description='Help the Robot get to its destination',
     author='Jonathan Wesner',

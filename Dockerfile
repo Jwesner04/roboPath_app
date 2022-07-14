@@ -62,9 +62,13 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 
 # install react
 RUN npm -g install create-react-app
+RUN npm install react-bootstrap bootstrap
+RUN npm install mdb-react-ui-kit
 
 WORKDIR /app/
 
 RUN chmod -R 777 .
 
 CMD ["/bin/bash"]
+
+# TODO: Add a non-root user and switch to that user

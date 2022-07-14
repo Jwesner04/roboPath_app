@@ -2,6 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: ModuleTest",
+            "type": "python",
+            "request": "launch",
+            "module": "tests.test_main",
+            "justMyCode": true
+        },
+        {
             "name": "Python: Module",
             "type": "python",
             "request": "launch",
