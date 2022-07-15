@@ -4,18 +4,9 @@ import { Container, Button, Row, Col, Card, Dropdown } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form'
 // References to Icons: https://icons.getbootstrap.com/
 import { PlusSquareFill, TrashFill } from 'react-bootstrap-icons';
-import {
-  MDBNavbar,
-  MDBNavbarNav,
-  MDBNavbarItem,
-  MDBNavbarLink,
-  MDBNavbarToggler,
-  MDBContainer,
-  MDBIcon
-} from 'mdb-react-ui-kit';
 
 function App() {
-  const [returnData, setReturnData] = useState([]);
+  const [returnData, setReturnData] = useState({});
   const [m, setM] = useState(0);
   const [n, setN] = useState(0);
   const [robotRadius, setRobotRadius] = useState(0);
@@ -31,7 +22,10 @@ function App() {
   const [obstacleForm, setObstacleForm] = useState(false);
   const [obstacleDisplayList, setObstacleDisplayList] = useState([])
   const [numObstacles, setNumObstacles] = useState([])
-  const [pathFound, setPathFound] = useState(false)
+  const [graph, setGraph] = useState([])
+  const [mapValid, setMapValid] = useState(false)
+  const [obstacleValid, setObstacleValid] = useState(false)
+  const [graphElements, setGraphElements] = useState([])
 
 
   const addObstacle = () => {
@@ -113,11 +107,6 @@ function App() {
         }
 
         // GET request using fetch inside useEffect React hook
-        const dataLocal = ""
-        //await fetch('http://localhost:8000/')
-        // .then(response => response.json())
-        // .then(data => setReturnData(data));
-        //alert(returnData)
         const requestOptions = {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -134,6 +123,19 @@ function App() {
     setSubmitSimulationFlag(false);
 
   }, [returnData, submitSimulationFlag])
+
+  const outputGraph = () => {
+    if (returnData["roboMap"] !== undefined) {
+      return (
+        returnData["roboMap"].map((m, row) => (
+          <tr data-index={row}>
+            {m.map((n, column) => (
+              <td data-index={row - column}>{n}</td>
+            ))}
+          </tr>))
+      )
+    }
+  }
 
   return (
     <div>
@@ -199,12 +201,13 @@ function App() {
             </Card >
           </Col >
         </Row >
-        < Row >
-          {
-            Object.keys(returnData).map((key, index) => {
-              <p key={index}> This key is {key} and value is {returnData[{ key }]} </p>
-            })}
-        </Row >
+        <Row>
+          <table className="table table-bordered table-hover table-sm">
+            <tbody>
+              {outputGraph()}
+            </tbody>
+          </table>
+        </Row>
       </Container >
     </div>
 

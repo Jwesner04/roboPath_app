@@ -2,7 +2,7 @@
 # This file includes the main for this test app                              #
 #                                                                            #
 # © 2022 Jonathan Wesner                                                     #
-#                                                                            #                                                                   #
+#                                                                            #
 #                                                                            #
 # main() app                                                                 #
 # -------------------------------------------------------------------------- #
@@ -32,15 +32,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
-
-@app.get("/", tags=["root"])
-async def read_root() -> dict:
-    return {"message": "Welcome to your todo list."}
-
-# Below is for Testing Purposes ONLY
-# with open('data/defaultData.json', 'r') as f:
-#    data = json.load(f)
 
 
 @app.post("/getRobotMap")

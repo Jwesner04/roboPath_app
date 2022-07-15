@@ -62,8 +62,6 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
 
 # install react
 RUN npm -g install create-react-app
-RUN npm install react-bootstrap bootstrap
-RUN npm install mdb-react-ui-kit
 
 WORKDIR /app/
 
